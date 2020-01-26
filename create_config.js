@@ -39,8 +39,18 @@ const verifyAuthServer = async authServer => {
     if (wrongServer) {
       throw new Error()
     }
-  } catch (e) {
-    throw new Error('Erro ao se comunicar com o servidor de autenticação')
+  } catch (err) {
+    if (
+      'response' in err &&
+      'data' in err.response &&
+      'message' in err.response.data
+    ) {
+      throw new Error(
+        err.response.data.message
+      )
+    } else {
+      throw new Error('Erro ao se comunicar com o servidor de autenticação')
+    }
   }
 }
 
@@ -98,8 +108,18 @@ const verifyLoginAuthServer = async (servidor, usuario, senha) => {
 
     const authUserData = await getAuthUserData(servidor, token, authUserUUID)
     return { authenticated, authUserData }
-  } catch (e) {
-    throw new Error('Erro ao se comunicar com o servidor de autenticação')
+  } catch (err) {
+    if (
+      'response' in err &&
+      'data' in err.response &&
+      'message' in err.response.data
+    ) {
+      throw new Error(
+        err.response.data.message
+      )
+    } else {
+      throw new Error('Erro ao se comunicar com o servidor de autenticação')
+    }
   }
 }
 
@@ -262,7 +282,7 @@ const createConfig = async () => {
         type: 'input',
         name: 'port',
         message: 'Qual a porta do serviço do SCRH?',
-        default: 3014
+        default: 3011
       },
       {
         type: 'confirm',

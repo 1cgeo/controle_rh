@@ -5,7 +5,8 @@ const Joi = require('joi')
 const fs = require('fs')
 const path = require('path')
 
-const { AppError, errorHandler } = require('./utils')
+const AppError = require('./utils/app_error')
+const errorHandler = require('./utils/error_handler')
 
 const configFile =
   process.env.NODE_ENV === 'test' ? 'config_testing.env' : 'config.env'
@@ -43,9 +44,7 @@ const configSchema = Joi.object().keys({
     .uri()
     .required(),
   VERSION: Joi.string().required(),
-  MIN_DATABASE_VERSION: Joi.string().required(),
-  PATH_LOGS: Joi.string().required(),
-  PATH_WORKSPACES: Joi.string().required()
+  MIN_DATABASE_VERSION: Joi.string().required()
 })
 
 const config = {

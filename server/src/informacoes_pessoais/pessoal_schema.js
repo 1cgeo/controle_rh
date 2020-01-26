@@ -11,10 +11,12 @@ models.uuidParams = Joi.object().keys({
 })
 
 models.atualizacaoInfo = Joi.object().keys({
+  tipo_turno_id: Joi.number().integer().strict().required(),
   cpf: Joi.string().allow('').required(),
   identidade: Joi.string().allow('').required(),
   validade_identidade: Joi.date().allow(null).required(),
   orgao_expedidor: Joi.string().allow('').required(),
+  endereco: Joi.string().allow('').required(),
   banco: Joi.string().allow('').required(),
   agencia: Joi.string().allow('').required(),
   conta_bancaria: Joi.string().allow('').required(),

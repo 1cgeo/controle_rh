@@ -39,4 +39,26 @@ INSERT INTO dominio.tipo_turno (code, nome) VALUES
 (2, 'Tarde'),
 (3, 'Integral');
 
+CREATE TABLE dominio.tipo_perda_recurso_humano(
+	code SMALLINT NOT NULL PRIMARY KEY,
+	nome VARCHAR(255) NOT NULL
+);
+
+INSERT INTO dominio.tipo_perda_recurso_humano (code, nome) VALUES
+(1, 'Férias'),
+(2, 'Desconto em férias'),
+(3, 'Dispensa como recompensa'),
+(4, 'Dispensa de aniversário'),
+(5, 'Dispensa por motivo de saúde'),
+(6, 'Feriado'),
+(7, 'Dispensa por regresso de atividade de campo'),
+(8, 'Serviço'),
+(9, 'Atividades militares'),
+(10, 'Atividades administrativas'),
+(11, 'Problemas técnicos'),
+(12, 'Realizando curso / capacitação'),
+(13, 'Ministrando curso / capacitação'),
+(14, 'Participação em eventos'),
+(98, 'Outros');
+
 COMMIT;
