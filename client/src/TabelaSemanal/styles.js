@@ -23,6 +23,9 @@ const styles = makeStyles(theme => ({
     alignItems: 'center',
     padding: theme.spacing(4, 3),
     elevation: 3
+  },
+  formControl: {
+    margin: theme.spacing(3)
   }
 }))
 

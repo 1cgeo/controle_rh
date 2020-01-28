@@ -22,6 +22,7 @@ import Grid from '@material-ui/core/Grid'
 import styles from './styles'
 import { getData, setOkUsuarioDia, setFaltaUsuarioDia } from './api'
 import { handleApiError } from '../services'
+import DialogoMotivo from './dialogo_motivo'
 
 const semanaAtual = () => {
   const today = moment()
@@ -32,7 +33,7 @@ const semanaAtual = () => {
 const diasSemanaAtual = (semana) => {
   const dias = []
   for (let i = 1; i <= 5; i++) {
-    dias.push(moment(`${semana[0]}-W${semana[1]}-${i}`).format('DD/MM'))
+    dias.push(moment(`${semana[0]}-W${semana[1]}-${i}`).format('DD/MM - ddd'))
   }
 }
 
@@ -47,13 +48,12 @@ export default withRouter(props => {
   const classes = styles()
 
   const [usuarios, setUsuarios] = useState([])
+
   const [semana, setSemana] = useState(() => semanaAtual())
   const [dadosUsuarioSemana, setDadosUsuariosSemana] = useState({})
-  const [modalState, setModalState] = useState({
-    open: false,
-    usuario: '',
-    dia: ''
-  })
+  const [openDialogoMotivo, setOpenDialogoMotivo] = useState(false)
+  const [usuarioUuid, setUsuarioUuid] = useState('')
+  const [diaSelecionado, setDiaSelecionado] = useState('')
 
   const [snackbar, setSnackbar] = useState('')
   const [loaded, setLoaded] = useState(false)
@@ -94,33 +94,31 @@ export default withRouter(props => {
     }
   }
 
-  const handleFalta = async (uuid, dia, motivo) => {
-    try {
-      const success = await setFaltaUsuarioDia(uuid, dia, motivo)
-      if (success) {
+  const handleOpenDialog = async (uuid, dia) => {
+    setUsuarioUuid(uuid)
+    setDiaSelecionado(dia)
+    setOpenDialogoMotivo(true)
+  }
+
+  const setMotivo = useMemo(() => async (status, msg) => {
+    if (status === 'success') {
+      try {
+        const success = await setFaltaUsuarioDia(usuarioUuid, diaSelecionado, msg)
+        if (success) {
+          setRefresh(new Date())
+        }
+      } catch (err) {
         setRefresh(new Date())
+        handleApiError(err, setSnackbar)
       }
-    } catch (err) {
-      setRefresh(new Date())
-      handleApiError(err, setSnackbar)
+    } else if (status === 'error') {
+      setSnackbar({ status, msg, date: new Date() })
     }
-  }
 
-  const openModal = (uuid, dia) => {
-    setModalState({
-      open: true,
-      usuario: uuid,
-      dia: dia
-    })
-  }
-
-  const closeModal = () => {
-    setModalState({
-      open: false,
-      usuario: '',
-      dia: ''
-    })
-  }
+    setOpenDialogoMotivo(false)
+    setUsuarioUuid('')
+    setDiaSelecionado('')
+  }, [])
 
   const semanaTxt = useMemo(() => calculaSemanaTxt(semana), [semana])
   const diasSemana = useMemo(() => diasSemanaAtual(semana), [semana])
@@ -181,11 +179,11 @@ export default withRouter(props => {
                           {u.nome}
                         </TableCell>
                         {dadosUsuarioSemana[u.uuid].map((dados, j) => (
-                          <TableCell key={j} align='right'>
+                          <TableCell key={j} align='center'>
                             <IconButton color='primary' component='span' onClick={() => handleOk(u.uuid, dados.dia)}>
                               <CheckCircleIcon />
                             </IconButton>
-                            <IconButton color='secondary' component='span' onClick={() => handleFalta(u.uuid, dados.dia)}>
+                            <IconButton color='secondary' component='span' onClick={() => handleOpenDialog(u.uuid, dados.dia)}>
                               <CancelIcon />
                             </IconButton>
                           </TableCell>
@@ -205,17 +203,14 @@ export default withRouter(props => {
             <ReactLoading type='bars' color='#F83737' height='5%' width='5%' />
           </div>
         )}
-      <Modal
-        open={modalState.open}
-        onClose={closeModal}
-      >
-        <Card>
-          <Typography variant='h6' gutterBottom>Log de Execução</Typography>
-          <CardContent>
-            {modalState.usuario}
-          </CardContent>
-        </Card>
-      </Modal>
+      {openDialogoMotivo
+        ? (
+          <DialogoMotivo
+            open={openDialogoMotivo.open}
+            handleDialog={setMotivo}
+          />
+        )
+        : null}
       {snackbar ? <MessageSnackBar status={snackbar.status} key={snackbar.date} msg={snackbar.msg} /> : null}
     </>
   )
